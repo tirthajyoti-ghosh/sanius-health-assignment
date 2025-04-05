@@ -7,25 +7,25 @@ import { ThemedView } from '@/components/ThemedView';
 import { MovieList } from '@/components/MovieList';
 import { useMovies } from '@/context/MovieContext';
 
-export default function NowPlayingScreen() {
+export default function TopRatedScreen() {
   const { moviesData, isLoading, error, loadMoreMovies, refreshMovies, setCurrentCategory } = useMovies();
   
   useEffect(() => {
-    setCurrentCategory('now_playing');
+    setCurrentCategory('top_rated');
   }, []);
 
   return (
     <ThemedView style={styles.container}>
       <MovieList
-        movies={moviesData.now_playing}
+        movies={moviesData.top_rated}
         isLoading={isLoading}
         onRefresh={refreshMovies}
         onEndReached={loadMoreMovies}
         error={error}
         ListHeaderComponent={
           <ThemedView style={styles.header}>
-            <ThemedText type="title">Now Playing</ThemedText>
-            <ThemedText>Currently showing in theaters</ThemedText>
+            <ThemedText type="title">Top Rated</ThemedText>
+            <ThemedText>Highest rated movies of all time</ThemedText>
           </ThemedView>
         }
       />

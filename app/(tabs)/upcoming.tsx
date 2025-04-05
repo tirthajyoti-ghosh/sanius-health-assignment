@@ -7,25 +7,25 @@ import { ThemedView } from '@/components/ThemedView';
 import { MovieList } from '@/components/MovieList';
 import { useMovies } from '@/context/MovieContext';
 
-export default function NowPlayingScreen() {
+export default function UpcomingScreen() {
   const { moviesData, isLoading, error, loadMoreMovies, refreshMovies, setCurrentCategory } = useMovies();
   
   useEffect(() => {
-    setCurrentCategory('now_playing');
+    setCurrentCategory('upcoming');
   }, []);
 
   return (
     <ThemedView style={styles.container}>
       <MovieList
-        movies={moviesData.now_playing}
+        movies={moviesData.upcoming}
         isLoading={isLoading}
         onRefresh={refreshMovies}
         onEndReached={loadMoreMovies}
         error={error}
         ListHeaderComponent={
           <ThemedView style={styles.header}>
-            <ThemedText type="title">Now Playing</ThemedText>
-            <ThemedText>Currently showing in theaters</ThemedText>
+            <ThemedText type="title">Upcoming Movies</ThemedText>
+            <ThemedText>Coming soon to theaters</ThemedText>
           </ThemedView>
         }
       />
