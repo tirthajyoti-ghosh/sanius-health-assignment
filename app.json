@@ -9,13 +9,15 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.tirtha.tmdbmoviesapp"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#0a7ea4"
-      }
+      },
+      "package": "com.tirtha.tmdbmoviesapp"
     },
     "web": {
       "bundler": "metro",

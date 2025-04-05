@@ -54,3 +54,26 @@ export const getMovieDetails = async (movieId: number): Promise<Movie> => {
     throw error;
   }
 };
+
+export const searchMovies = async (query: string, page: number = 1): Promise<MoviesResponse> => {
+  try {
+    const response = await fetch(
+      `${BASE_URL}/search/movie?language=en-US&query=${encodeURIComponent(query)}&page=${page}`,
+      {
+        headers: {
+          Authorization: `Bearer ${API_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Error searching movies: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`Error searching movies:`, error);
+    throw error;
+  }
+};

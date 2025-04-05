@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Image, TouchableOpacity, View, Platform, Dimensions } from 'react-native';
-import { RelativePathString, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
@@ -17,7 +17,7 @@ export function MovieCard({ movie }: MovieCardProps) {
   const router = useRouter();
   
   const handlePress = () => {
-    router.push(`/movie/${movie.id.toString()}` as RelativePathString);
+    router.push(`./movie/${movie.id.toString()}`);
   };
 
   return (
