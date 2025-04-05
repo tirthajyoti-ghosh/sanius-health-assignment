@@ -1,5 +1,6 @@
 import React from 'react';
-import { FlatList, RefreshControl, StyleSheet, ActivityIndicator, View } from 'react-native';
+import { FlatList, RefreshControl, StyleSheet, ActivityIndicator, View, Dimensions } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { MovieCard } from '@/components/MovieCard';
@@ -33,8 +34,9 @@ export function MovieList({
   if (error) {
     return (
       <ThemedView style={styles.centerContainer}>
-        <ThemedText type="subtitle">Error</ThemedText>
-        <ThemedText>{error}</ThemedText>
+        <Ionicons name="alert-circle" size={60} color="#ff6b6b" />
+        <ThemedText type="subtitle" style={styles.errorTitle}>Error</ThemedText>
+        <ThemedText style={styles.errorText}>{error}</ThemedText>
       </ThemedView>
     );
   }
@@ -47,7 +49,12 @@ export function MovieList({
       numColumns={2}
       contentContainerStyle={styles.flatListContent}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+        <RefreshControl 
+          refreshing={refreshing} 
+          onRefresh={handleRefresh}
+          tintColor="#ff6b6b" 
+          colors={["#ff6b6b"]}
+        />
       }
       onEndReached={onEndReached}
       onEndReachedThreshold={0.5}
@@ -55,28 +62,33 @@ export function MovieList({
       ListFooterComponent={
         isLoading && !refreshing ? (
           <View style={styles.footer}>
-            <ActivityIndicator size="small" color="#0a7ea4" />
+            <ActivityIndicator size="large" color="#ff6b6b" />
           </View>
         ) : null
       }
       ListEmptyComponent={
         !isLoading ? (
-          <ThemedView style={styles.centerContainer}>
-            <ThemedText>No movies found</ThemedText>
+          <ThemedView style={styles.emptyContainer}>
+            <Ionicons name="film-outline" size={80} color="#aaa" />
+            <ThemedText style={styles.emptyText}>No movies found</ThemedText>
           </ThemedView>
         ) : (
-          <ThemedView style={styles.centerContainer}>
-            <ActivityIndicator size="large" color="#0a7ea4" />
+          <ThemedView style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#ff6b6b" />
+            <ThemedText style={styles.loadingText}>Loading movies...</ThemedText>
           </ThemedView>
         )
       }
+      showsVerticalScrollIndicator={false}
     />
   );
 }
 
+const { width } = Dimensions.get('window');
+
 const styles = StyleSheet.create({
   flatListContent: {
-    padding: 8,
+    padding: 12,
     paddingBottom: 100,
   },
   centerContainer: {
@@ -86,7 +98,40 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   footer: {
-    padding: 16,
+    padding: 24,
     alignItems: 'center',
+  },
+  emptyContainer: {
+    padding: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 400,
+  },
+  emptyText: {
+    fontSize: 18,
+    opacity: 0.7,
+    marginTop: 16,
+  },
+  loadingContainer: {
+    padding: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 400,
+  },
+  loadingText: {
+    fontSize: 16,
+    opacity: 0.7,
+    marginTop: 16,
+  },
+  errorTitle: {
+    fontSize: 24,
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  errorText: {
+    textAlign: 'center',
+    marginBottom: 24,
+    opacity: 0.7,
+    maxWidth: width * 0.8,
   },
 });

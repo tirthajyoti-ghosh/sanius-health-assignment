@@ -8,7 +8,11 @@ import {
   Dimensions,
   View,
   Platform,
+  TouchableOpacity,
+  Animated,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useMovies } from '@/context/MovieContext';
@@ -23,6 +27,7 @@ export default function MovieDetailScreen() {
   const [movie, setMovie] = useState<Movie | undefined>(getMovie(Number(id)));
   const [isLoading, setIsLoading] = useState(!movie);
   const [error, setError] = useState<string | null>(null);
+  const scrollY = new Animated.Value(0);
   
   useEffect(() => {
     async function loadMovie() {
@@ -45,7 +50,8 @@ export default function MovieDetailScreen() {
   if (isLoading) {
     return (
       <ThemedView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0a7ea4" />
+        <ActivityIndicator size="large" color="#ff6b6b" />
+        <ThemedText style={styles.loadingText}>Loading movie details...</ThemedText>
       </ThemedView>
     );
   }
@@ -53,11 +59,21 @@ export default function MovieDetailScreen() {
   if (error || !movie) {
     return (
       <ThemedView style={styles.errorContainer}>
-        <ThemedText type="subtitle">Error</ThemedText>
-        <ThemedText>{error || 'Movie not found'}</ThemedText>
+        <Ionicons name="alert-circle" size={60} color="#ff6b6b" />
+        <ThemedText type="subtitle" style={styles.errorTitle}>Error</ThemedText>
+        <ThemedText style={styles.errorText}>{error || 'Movie not found'}</ThemedText>
+        <TouchableOpacity style={styles.retryButton} onPress={() => setError(null)}>
+          <ThemedText style={styles.retryText}>Try Again</ThemedText>
+        </TouchableOpacity>
       </ThemedView>
     );
   }
+
+  const headerOpacity = scrollY.interpolate({
+    inputRange: [0, 100, 150],
+    outputRange: [0, 0.5, 1],
+    extrapolate: 'clamp',
+  });
 
   return (
     <>
@@ -70,8 +86,18 @@ export default function MovieDetailScreen() {
           headerTintColor: '#fff',
         }}
       />
-      <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-        {/* Backdrop Image */}
+      
+      <Animated.ScrollView 
+        style={styles.container} 
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: true }
+        )}
+        scrollEventThrottle={16}
+      >
+        {/* Hero section with backdrop */}
         <View style={styles.backdropContainer}>
           <Image
             source={{
@@ -80,10 +106,14 @@ export default function MovieDetailScreen() {
             style={styles.backdropImage}
             resizeMode="cover"
           />
-          <View style={styles.backdropGradient} />
+          <LinearGradient
+            colors={['transparent', 'rgba(0,0,0,0.9)']}
+            style={styles.backdropGradient}
+          />
         </View>
         
         <ThemedView style={styles.contentSection}>
+          {/* Poster and basic info */}
           <View style={styles.posterAndInfo}>
             <View style={styles.posterContainer}>
               <Image
@@ -99,52 +129,106 @@ export default function MovieDetailScreen() {
               </ThemedText>
               
               <View style={styles.ratingAndDate}>
-                <ThemedView style={styles.ratingBadge}>
+                <View style={styles.ratingBadge}>
+                  <Ionicons name="star" size={16} color="#FFD700" />
                   <ThemedText style={styles.ratingText}>
                     {movie.vote_average.toFixed(1)}
                   </ThemedText>
-                </ThemedView>
-                <ThemedText>{formatDate(movie.release_date)}</ThemedText>
+                </View>
+                <ThemedText style={styles.dateText}>{formatDate(movie.release_date)}</ThemedText>
+              </View>
+              
+              <View style={styles.genrePills}>
+                {/* Assuming you have genre data - if not, you can remove this */}
+                <View style={styles.genrePill}>
+                  <ThemedText style={styles.genreText}>Action</ThemedText>
+                </View>
+                <View style={styles.genrePill}>
+                  <ThemedText style={styles.genreText}>Drama</ThemedText>
+                </View>
               </View>
             </View>
           </View>
           
+          {/* Action buttons */}
+          <View style={styles.actionButtons}>
+            <TouchableOpacity style={styles.actionButton}>
+              <Ionicons name="play-circle" size={22} color="#fff" />
+              <ThemedText style={styles.actionButtonText}>Trailer</ThemedText>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.actionButton}>
+              <Ionicons name="heart-outline" size={22} color="#fff" />
+              <ThemedText style={styles.actionButtonText}>Favorite</ThemedText>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.actionButton}>
+              <Ionicons name="share-social-outline" size={22} color="#fff" />
+              <ThemedText style={styles.actionButtonText}>Share</ThemedText>
+            </TouchableOpacity>
+          </View>
+          
+          {/* Overview section */}
           <ThemedView style={styles.overviewContainer}>
-            <ThemedText type="subtitle">Overview</ThemedText>
+            <ThemedText type="subtitle" style={styles.sectionTitle}>Overview</ThemedText>
             <ThemedText style={styles.overview}>
               {movie.overview || 'No overview available'}
             </ThemedText>
           </ThemedView>
           
-          <ThemedView style={styles.additionalInfo}>
-            <ThemedText type="defaultSemiBold">Original Title:</ThemedText>
-            <ThemedText>{movie.original_title}</ThemedText>
+          {/* Additional info in cards */}
+          <ThemedText type="subtitle" style={styles.sectionTitle}>Movie Details</ThemedText>
+          <ThemedView style={styles.detailsCard}>
+            <View style={styles.detailRow}>
+              <ThemedText type="defaultSemiBold" style={styles.detailLabel}>
+                Original Title
+              </ThemedText>
+              <ThemedText style={styles.detailValue}>{movie.original_title}</ThemedText>
+            </View>
             
-            <ThemedText type="defaultSemiBold" style={styles.infoLabel}>
-              Original Language:
-            </ThemedText>
-            <ThemedText>
-              {movie.original_language.toUpperCase()}
-            </ThemedText>
+            <View style={styles.separator} />
             
-            <ThemedText type="defaultSemiBold" style={styles.infoLabel}>
-              Popularity:
-            </ThemedText>
-            <ThemedText>{movie.popularity.toFixed(1)}</ThemedText>
+            <View style={styles.detailRow}>
+              <ThemedText type="defaultSemiBold" style={styles.detailLabel}>
+                Language
+              </ThemedText>
+              <View style={styles.languageBadge}>
+                <ThemedText style={styles.languageText}>
+                  {movie.original_language.toUpperCase()}
+                </ThemedText>
+              </View>
+            </View>
             
-            <ThemedText type="defaultSemiBold" style={styles.infoLabel}>
-              Vote Count:
-            </ThemedText>
-            <ThemedText>{movie.vote_count.toLocaleString()}</ThemedText>
+            <View style={styles.separator} />
+            
+            <View style={styles.detailRow}>
+              <ThemedText type="defaultSemiBold" style={styles.detailLabel}>
+                Popularity
+              </ThemedText>
+              <ThemedText style={styles.detailValue}>
+                <Ionicons name="trending-up" size={16} color="#4CD964" /> {movie.popularity.toFixed(1)}
+              </ThemedText>
+            </View>
+            
+            <View style={styles.separator} />
+            
+            <View style={styles.detailRow}>
+              <ThemedText type="defaultSemiBold" style={styles.detailLabel}>
+                Vote Count
+              </ThemedText>
+              <ThemedText style={styles.detailValue}>
+                <Ionicons name="people" size={16} color="#5AC8FA" /> {movie.vote_count.toLocaleString()}
+              </ThemedText>
+            </View>
           </ThemedView>
         </ThemedView>
-      </ScrollView>
+      </Animated.ScrollView>
     </>
   );
 }
 
-const { width } = Dimensions.get('window');
-const posterWidth = width * 0.3;
+const { width, height } = Dimensions.get('window');
+const posterWidth = width * 0.35;
 
 const styles = StyleSheet.create({
   container: {
@@ -157,6 +241,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#121212',
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    opacity: 0.7,
   },
   errorContainer: {
     flex: 1,
@@ -164,8 +254,36 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
   },
+  errorTitle: {
+    fontSize: 24,
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  errorText: {
+    textAlign: 'center',
+    marginBottom: 24,
+    opacity: 0.7,
+  },
+  retryButton: {
+    backgroundColor: '#ff6b6b',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  retryText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  animatedHeader: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 90,
+    zIndex: 1,
+  },
   backdropContainer: {
-    height: 250,
+    height: height * 0.5,
     position: 'relative',
   },
   backdropImage: {
@@ -177,34 +295,28 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 80,
-    backgroundGradient: 'linear-gradient(to bottom, transparent, rgba(0,0,0,0.8))',
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    height: 200,
   },
   contentSection: {
-    marginTop: -40,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 16,
+    marginTop: -60,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 20,
+    paddingTop: 0,
   },
   posterAndInfo: {
     flexDirection: 'row',
-    marginBottom: 20,
+    marginBottom: 24,
+    marginTop: -60,
   },
   posterContainer: {
-    borderRadius: 8,
+    borderRadius: 16,
     overflow: 'hidden',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-      },
-      android: {
-        elevation: 5,
-      },
-    }),
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
   },
   posterImage: {
     width: posterWidth,
@@ -218,36 +330,110 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     marginBottom: 8,
+    paddingTop: 64,
+    fontWeight: 'bold',
   },
   ratingAndDate: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    marginBottom: 12,
   },
   ratingBadge: {
-    backgroundColor: '#0a7ea4',
+    backgroundColor: 'rgba(255, 215, 0, 0.2)',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 12,
   },
   ratingText: {
-    color: 'white',
+    color: '#FFD700',
     fontWeight: 'bold',
+    fontSize: 14,
+    marginLeft: 4,
+  },
+  dateText: {
+    opacity: 0.7,
+  },
+  genrePills: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  genrePill: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 16,
+  },
+  genreText: {
     fontSize: 12,
+    fontWeight: '500',
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 24,
+    paddingHorizontal: 12,
+  },
+  actionButton: {
+    flex: 1,
+    backgroundColor: 'rgba(255, 107, 107, 0.9)',
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    marginHorizontal: 6,
+  },
+  actionButtonText: {
+    color: 'white',
+    marginLeft: 6,
+    fontWeight: '600',
+  },
+  sectionTitle: {
+    fontSize: 20,
+    marginBottom: 12,
+    fontWeight: '700',
   },
   overviewContainer: {
-    marginBottom: 20,
+    marginBottom: 28,
   },
   overview: {
-    marginTop: 8,
-    lineHeight: 22,
+    lineHeight: 24,
+    opacity: 0.9,
   },
-  additionalInfo: {
+  detailsCard: {
     padding: 16,
-    borderRadius: 8,
-    gap: 4,
+    borderRadius: 16,
+    marginBottom: 24,
   },
-  infoLabel: {
-    marginTop: 12,
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  detailLabel: {
+    fontSize: 16,
+  },
+  detailValue: {
+    fontSize: 16,
+    opacity: 0.9,
+  },
+  separator: {
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  languageBadge: {
+    backgroundColor: 'rgba(90, 200, 250, 0.2)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  languageText: {
+    color: '#5AC8FA',
+    fontWeight: '600',
   },
 });
