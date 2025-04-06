@@ -8,6 +8,8 @@ import { ThemedView } from '@/components/ThemedView';
 import { Movie } from '@/api/types';
 import { getImageUrl } from '@/api/movie';
 import { formatDate } from '@/utils/date';
+import { useFavorites } from '@/context/FavoritesContext';
+
 
 type MovieCardProps = {
   movie: Movie;
@@ -15,9 +17,11 @@ type MovieCardProps = {
 
 export function MovieCard({ movie }: MovieCardProps) {
   const router = useRouter();
-  
+  const { isFavorite } = useFavorites();
+  const isFav = isFavorite(movie.id);
+
   const handlePress = () => {
-    router.push(`./movie/${movie.id.toString()}`);
+    router.push(`/movie/${movie.id.toString()}`);
   };
 
   return (
@@ -49,6 +53,12 @@ export function MovieCard({ movie }: MovieCardProps) {
               <ThemedText style={styles.ratingText}>{movie.vote_average.toFixed(1)}</ThemedText>
             </View>
           </View>
+          
+          {isFav && (
+            <View style={styles.favoriteIndicator}>
+              <Ionicons name="heart" size={16} color="#fff" />
+            </View>
+          )}
         </View>
         
         <View style={styles.infoContainer}>
@@ -112,6 +122,17 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     backgroundColor: '#2a2a3a',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  favoriteIndicator: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: 'rgba(255, 107, 107, 0.8)',
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
   },

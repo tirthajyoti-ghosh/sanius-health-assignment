@@ -18,7 +18,7 @@ function SearchButton() {
   return (
     <TouchableOpacity 
       style={styles.searchButton}
-      onPress={() => router.push('./search')}
+      onPress={() => router.push('/search')}
       activeOpacity={0.8}
     >
       <Ionicons name="search" size={22} color="#fff" />
@@ -70,6 +70,13 @@ export default function TabLayout() {
           options={{
             title: 'Upcoming',
             tabBarIcon: ({ color }) => <IconSymbol size={28} name="calendar" color={color} />,
+          }}
+        />
+        <Tabs.Screen
+          name="favorites"
+          options={{
+            title: 'Favorites',
+            tabBarIcon: ({ color }) => <Ionicons name="heart" size={24} color={color} />,
           }}
         />
       </Tabs>

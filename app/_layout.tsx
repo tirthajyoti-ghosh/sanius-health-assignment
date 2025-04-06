@@ -10,6 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { MovieProvider } from '@/context/MovieContext';
 import { SearchProvider } from '@/context/SearchContext';
+import { FavoritesProvider } from '@/context/FavoritesContext'; // We'll create this later
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -35,12 +36,14 @@ export default function RootLayout() {
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <MovieProvider>
           <SearchProvider>
-            <Stack>
+            <FavoritesProvider>
+              <Stack>
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
                 <Stack.Screen name="movie/[id]" options={{ headerShown: false }} />
                 <Stack.Screen name="search/index" options={{ headerShown: false }} />
                 <Stack.Screen name="+not-found" />
-            </Stack>
+              </Stack>
+            </FavoritesProvider>
           </SearchProvider>
         </MovieProvider>
         <StatusBar style="auto" />

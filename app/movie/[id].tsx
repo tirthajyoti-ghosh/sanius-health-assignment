@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import {
   StyleSheet,
@@ -13,13 +13,15 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { StatusBar } from 'expo-status-bar';
+
+import { useFavorites } from '@/context/FavoritesContext';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useMovies } from '@/context/MovieContext';
 import { getImageUrl } from '@/api/movie';
 import { formatDate } from '@/utils/date';
 import { Movie } from '@/api/types';
-import { StatusBar } from 'expo-status-bar';
 
 export default function MovieDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -28,7 +30,10 @@ export default function MovieDetailScreen() {
   const [isLoading, setIsLoading] = useState(!movie);
   const [error, setError] = useState<string | null>(null);
   const scrollY = new Animated.Value(0);
-  
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const [isFav, setIsFav] = useState<boolean>(false);
+  const heartAnim = useRef(new Animated.Value(1)).current;
+
   useEffect(() => {
     async function loadMovie() {
       if (!movie) {
@@ -46,6 +51,33 @@ export default function MovieDetailScreen() {
     
     loadMovie();
   }, [id]);
+
+  useEffect(() => {
+    if (movie) {
+      setIsFav(isFavorite(movie.id));
+    }
+  }, [movie]);
+  
+  const handleToggleFavorite = async () => {
+    if (movie) {
+      // Animate heart button when toggled
+      Animated.sequence([
+        Animated.timing(heartAnim, {
+          toValue: 1.3,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+        Animated.timing(heartAnim, {
+          toValue: 1,
+          duration: 150,
+          useNativeDriver: true,
+        })
+      ]).start();
+      
+      await toggleFavorite(movie);
+      setIsFav(!isFav);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -68,12 +100,6 @@ export default function MovieDetailScreen() {
       </ThemedView>
     );
   }
-
-  const headerOpacity = scrollY.interpolate({
-    inputRange: [0, 100, 150],
-    outputRange: [0, 0.5, 1],
-    extrapolate: 'clamp',
-  });
 
   return (
     <>
@@ -150,24 +176,6 @@ export default function MovieDetailScreen() {
             </View>
           </View>
           
-          {/* Action buttons */}
-          <View style={styles.actionButtons}>
-            <TouchableOpacity style={styles.actionButton}>
-              <Ionicons name="play-circle" size={22} color="#fff" />
-              <ThemedText style={styles.actionButtonText}>Trailer</ThemedText>
-            </TouchableOpacity>
-            
-            <TouchableOpacity style={styles.actionButton}>
-              <Ionicons name="heart-outline" size={22} color="#fff" />
-              <ThemedText style={styles.actionButtonText}>Favorite</ThemedText>
-            </TouchableOpacity>
-            
-            <TouchableOpacity style={styles.actionButton}>
-              <Ionicons name="share-social-outline" size={22} color="#fff" />
-              <ThemedText style={styles.actionButtonText}>Share</ThemedText>
-            </TouchableOpacity>
-          </View>
-          
           {/* Overview section */}
           <ThemedView style={styles.overviewContainer}>
             <ThemedText type="subtitle" style={styles.sectionTitle}>Overview</ThemedText>
@@ -223,6 +231,39 @@ export default function MovieDetailScreen() {
           </ThemedView>
         </ThemedView>
       </Animated.ScrollView>
+
+      {/* Floating favorite button */}
+      <TouchableOpacity 
+        style={[styles.favoriteButton, isFav && styles.favoriteButtonActive]}
+        onPress={handleToggleFavorite}
+        activeOpacity={0.7}
+      >
+        <Animated.View 
+          style={{ 
+            transform: [{ scale: heartAnim }],
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Ionicons 
+            name={isFav ? "heart" : "heart-outline"} 
+            size={28} 
+            color={isFav ? "#fff" : "#ff6b6b"} 
+          />
+          {isFav && (
+            <View style={{
+              position: 'absolute',
+              top: -3,
+              right: -3,
+              width: 10,
+              height: 10,
+              borderRadius: 5,
+              backgroundColor: '#fff',
+            }} />
+          )}
+        </Animated.View>
+      </TouchableOpacity>
     </>
   );
 }
@@ -371,26 +412,28 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '500',
   },
-  actionButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 24,
-    paddingHorizontal: 12,
-  },
-  actionButton: {
-    flex: 1,
-    backgroundColor: 'rgba(255, 107, 107, 0.9)',
-    paddingVertical: 12,
-    borderRadius: 12,
-    alignItems: 'center',
+  favoriteButton: {
+    position: 'absolute',
+    right: 20,
+    bottom: Platform.OS === 'ios' ? 40 : 30,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: 'rgba(255, 255, 255, 1)',
     justifyContent: 'center',
-    flexDirection: 'row',
-    marginHorizontal: 6,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 6,
+    zIndex: 999,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
-  actionButtonText: {
-    color: 'white',
-    marginLeft: 6,
-    fontWeight: '600',
+  favoriteButtonActive: {
+    backgroundColor: '#ff3b5c',
+    borderColor: '#ff3b5c',
   },
   sectionTitle: {
     fontSize: 20,
