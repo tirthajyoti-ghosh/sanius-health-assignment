@@ -1,50 +1,86 @@
-# Welcome to your Expo app 👋
+# TMDB Movies App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A React Native mobile application that allows users to discover, search, and save their favorite movies using The Movie Database (TMDB) API.
 
-## Get started
+![Image](./assets/images/app-images.png)
+
+## Features
+
+- Browse movies across different categories:
+  - Now Playing
+  - Popular
+  - Top Rated
+  - Upcoming
+- Search movies by title, actor, or genre
+- View detailed movie information including:
+  - Plot overview
+  - Rating and release date
+  - Original language
+  - Popularity metrics
+- Save favorite movies for quick access
+- Modern UI with smooth animations
+- Dark theme optimized design
+
+## Tech Stack
+
+- React Native with Expo
+- TypeScript
+- Expo Router for navigation
+- Context API for state management
+- AsyncStorage for local data persistence
+- TMDB API for movie data
+- React Native Reanimated for animations
+
+## Setup
 
 1. Install dependencies
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-    npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. Create a .env file in the project root and **_use the API key I shared in the email_**:
 
-## Learn more
+```bash
+EXPO_PUBLIC_API_TOKEN=your_tmdb_api_token
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+3. Start the development server
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+npx expo start
+```
 
-## Join the community
+## Project Structure
 
-Join our community of developers creating universal apps.
+```md
+app/
+  ├── (tabs)/           # Tab-based navigation screens
+  ├── movie/            # Movie detail screens
+  ├── search/           # Search functionality
+  └── _layout.tsx       # Root layout configuration
+components/             # Reusable UI components
+context/                # Application state management
+  ├── MovieContext.tsx
+  ├── SearchContext.tsx
+  └── FavoritesContext.tsx
+api/
+  └── movie.ts         # TMDB API integration
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Development Notes
+
+- Uses TMDB API v3
+- Implements debounced search
+- Supports infinite scrolling
+- Handles offline data persistence
+- Optimized image loading
+
+## Credits
+
+- Movie data provided by [TMDB](https://www.themoviedb.org)
+- Icons from Expo Vector Icons
+
+## License
+
+MIT License
