@@ -26,20 +26,22 @@ export function MovieCard({ movie }: MovieCardProps) {
 
   return (
     <TouchableOpacity 
+      testID="movie-card"
       style={styles.container}
       onPress={handlePress}
       activeOpacity={0.8}
     >
-      <ThemedView style={styles.card}>
+      <ThemedView testID='themed-view' style={styles.card}>
         <View style={styles.imageContainer}>
           {movie.poster_path ? (
             <Image
+              testID="movie-poster"
               source={{ uri: getImageUrl(movie.poster_path, 'w342') || '' }}
               style={styles.poster}
               resizeMode="cover"
             />
           ) : (
-            <View style={styles.noImage}>
+            <View testID="no-image-placeholder" style={styles.noImage}>
               <Ionicons name="image-outline" size={50} color="#555" />
             </View>
           )}
@@ -50,12 +52,12 @@ export function MovieCard({ movie }: MovieCardProps) {
           <View style={styles.ratingContainer}>
             <View style={styles.ratingBadge}>
               <Ionicons name="star" size={14} color="#FFD700" />
-              <ThemedText style={styles.ratingText}>{movie.vote_average.toFixed(1)}</ThemedText>
+              <ThemedText testID='themed-text' style={styles.ratingText}>{movie.vote_average.toFixed(1)}</ThemedText>
             </View>
           </View>
           
           {isFav && (
-            <View style={styles.favoriteIndicator}>
+            <View testID="favorite-indicator" style={styles.favoriteIndicator}>
               <Ionicons name="heart" size={16} color="#fff" />
             </View>
           )}
@@ -63,13 +65,13 @@ export function MovieCard({ movie }: MovieCardProps) {
         
         <View style={styles.infoContainer}>
           <View style={styles.titleContainer}>
-            <ThemedText numberOfLines={2} style={styles.title}>
+            <ThemedText testID='themed-text' numberOfLines={2} style={styles.title}>
               {movie.title}
             </ThemedText>
           </View>
           <View style={styles.dateContainer}>
             <Ionicons name="calendar-outline" size={12} color="rgba(255,255,255,0.7)" />
-            <ThemedText style={styles.date}>{formatDate(movie.release_date)}</ThemedText>
+            <ThemedText testID='themed-text' style={styles.date}>{formatDate(movie.release_date)}</ThemedText>
           </View>
         </View>
       </ThemedView>

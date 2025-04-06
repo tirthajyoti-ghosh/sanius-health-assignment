@@ -35,7 +35,7 @@ export function MovieList({
     return (
       <ThemedView style={styles.centerContainer}>
         <Ionicons name="alert-circle" size={60} color="#ff6b6b" />
-        <ThemedText type="subtitle" style={styles.errorTitle}>Error</ThemedText>
+        <ThemedText testID='themed-text-error' type="subtitle" style={styles.errorTitle}>Error</ThemedText>
         <ThemedText style={styles.errorText}>{error}</ThemedText>
       </ThemedView>
     );
@@ -43,6 +43,7 @@ export function MovieList({
 
   return (
     <FlatList
+      testID="flat-list"
       data={movies}
       keyExtractor={(item) => item.id.toString()}
       renderItem={({ item }) => <MovieCard movie={item} />}
@@ -62,7 +63,7 @@ export function MovieList({
       ListFooterComponent={
         isLoading && !refreshing ? (
           <View style={styles.footer}>
-            <ActivityIndicator size="large" color="#ff6b6b" />
+            <ActivityIndicator testID="loading-indicator" size="large" color="#ff6b6b" />
           </View>
         ) : null
       }
@@ -70,12 +71,12 @@ export function MovieList({
         !isLoading ? (
           <ThemedView style={styles.emptyContainer}>
             <Ionicons name="film-outline" size={80} color="#aaa" />
-            <ThemedText style={styles.emptyText}>No movies found</ThemedText>
+            <ThemedText testID='themed-text-empty' style={styles.emptyText}>No movies found</ThemedText>
           </ThemedView>
         ) : (
           <ThemedView style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#ff6b6b" />
-            <ThemedText style={styles.loadingText}>Loading movies...</ThemedText>
+            <ThemedText testID='themed-text-loading' style={styles.loadingText}>Loading movies...</ThemedText>
           </ThemedView>
         )
       }
